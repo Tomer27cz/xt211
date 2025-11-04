@@ -1,0 +1,182 @@
+esphome:
+  name: esphome-smartmeter
+  friendly_name: SmartMeter
+
+esp32:
+  variant: esp32c3
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+# Allow Over-The-Air updates
+ota:
+- platform: esphome
+
+wifi:
+  ssid: "wifi_ssid"
+  password: "wifi_password"
+
+external_components:
+  - source:
+      type: local
+      path: components
+
+uart:
+  id: bus_1
+  rx_pin: GPIO21
+  tx_pin: GPIO20
+  baud_rate: 9600
+  data_bits: 8
+  parity: NONE
+  stop_bits: 1
+
+xt211:
+  push_show_log: true
+
+text_sensor:
+  - platform: xt211
+    name: Serial number
+    obis_code: 0.0.96.1.1.255
+    entity_category: diagnostic
+  - platform: xt211
+    name: Disconnector state
+    obis_code: 0.0.96.3.10.255
+    entity_category: diagnostic
+  - platform: xt211
+    name: Limmiter
+    obis_code: 0.0.17.0.0.255
+    entity_category: diagnostic  
+
+  - platform: xt211
+    name: Current tariff
+    obis_code: 0.0.96.14.0.255
+    entity_category: diagnostic
+  
+  - platform: xt211
+    name: Relay 1
+    obis_code: 0.1.96.3.10.255
+  - platform: xt211
+    name: Relay 2
+    obis_code: 0.2.96.3.10.255
+  - platform: xt211
+    name: Relay 3
+    obis_code: 0.3.96.3.10.255
+  - platform: xt211
+    name: Relay 4
+    obis_code: 0.4.96.3.10.255
+
+sensor:
+  - platform: xt211
+    id: active_energy_consumed
+    name: Energy
+    obis_code: 1.0.1.8.0.255
+    unit_of_measurement: kWh
+    accuracy_decimals: 0
+    device_class: energy
+    state_class: total_increasing
+
+  - platform: xt211
+    id: active_energy_consumed_t1
+    name: Energy T1
+    obis_code: 1.0.1.8.1.255
+    unit_of_measurement: kWh
+    accuracy_decimals: 0
+    device_class: energy
+    state_class: total_increasing
+  - platform: xt211
+    id: active_energy_consumed_t2
+    name: Energy T2
+    obis_code: 1.0.1.8.2.255
+    unit_of_measurement: kWh
+    accuracy_decimals: 0
+    device_class: energy
+    state_class: total_increasing
+  - platform: xt211
+    id: active_energy_consumed_t3
+    name: Energy T3
+    obis_code: 1.0.1.8.3.255
+    unit_of_measurement: kWh
+    accuracy_decimals: 0
+    device_class: energy
+    state_class: total_increasing
+  - platform: xt211
+    id: active_energy_consumed_t4
+    name: Energy T4
+    obis_code: 1.0.1.8.4.255
+    unit_of_measurement: kWh
+    accuracy_decimals: 0
+    device_class: energy
+    state_class: total_increasing
+
+  - platform: xt211
+    id: active_power
+    name: Active power consumption
+    obis_code: 1.0.1.7.0.255
+    unit_of_measurement: W
+    accuracy_decimals: 0
+    device_class: power
+    state_class: measurement
+
+  - platform: xt211
+    id: active_power_l1
+    name: Active power consumption L1
+    obis_code: 1.0.21.7.0.255
+    unit_of_measurement: W
+    accuracy_decimals: 0
+    device_class: power
+    state_class: measurement
+  - platform: xt211
+    id: active_power_l2
+    name: Active power consumption L2
+    obis_code: 1.0.41.7.0.255
+    unit_of_measurement: W
+    accuracy_decimals: 0
+    device_class: power
+    state_class: measurement
+  - platform: xt211
+    id: active_power_l3
+    name: Active power consumption L3
+    obis_code: 1.0.61.7.0.255
+    unit_of_measurement: W
+    accuracy_decimals: 0
+    device_class: power
+    state_class: measurement
+  
+  - platform: xt211
+    id: active_power_delivery
+    name: Active power delivery
+    obis_code: 1.0.2.7.0.255
+    unit_of_measurement: W
+    accuracy_decimals: 0
+    device_class: power
+    state_class: measurement
+
+  - platform: xt211
+    id: active_power_l1_delivery
+    name: Active power L1 delivery
+    obis_code: 1.0.22.7.0.255
+    unit_of_measurement: W
+    accuracy_decimals: 0
+    device_class: power
+    state_class: measurement
+  - platform: xt211
+    id: active_power_l2_delivery
+    name: Active power L2 delivery
+    obis_code: 1.0.42.7.0.255
+    unit_of_measurement: W
+    accuracy_decimals: 0
+    device_class: power
+    state_class: measurement
+  - platform: xt211
+    id: active_power_l3_delivery
+    name: Active power L3 delivery
+    obis_code: 1.0.62.7.0.255
+    unit_of_measurement: W
+    accuracy_decimals: 0
+    device_class: power
+    state_class: measurement
