@@ -26,6 +26,7 @@ wifi:
 external_components:
   - source: github://Tomer27cz/xt211
     components: [xt211]
+    refresh: 1s
 
 switch:
   - platform: gpio

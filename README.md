@@ -143,10 +143,10 @@ For a more detailed description of the component, see the [esphome-dlms-cosem re
 Add the external component to your ESPHome configuration:
 
 ```yaml
-
 external_components:
   - source: github://Tomer27cz/xt211
     components: [xt211]
+    refresh: 1s
 ```
 Then configure the DLMS/Cosem component:
 - push_show_log: true (optional, for debugging purposes - shows all received PUSH messages in the log)

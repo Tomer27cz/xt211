@@ -145,6 +145,7 @@ Přidej externí komponentu:
 external_components:
   - source: github://Tomer27cz/xt211
     components: [xt211]
+    refresh: 1s
 ```
 Poté nastav DLMS/Cosem komponentu:
 - push_show_log: true (volitelné, bude zobrazovat surové PUSH zprávy v logu pro debug a testování)
