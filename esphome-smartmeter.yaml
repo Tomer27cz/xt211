@@ -1,6 +1,8 @@
 esphome:
-  name: esphome-smartmeter
+  name: "esp32c3-2"
   friendly_name: SmartMeter
+  min_version: 2025.9.0
+  name_add_mac_suffix: false
 
 esp32:
   variant: esp32c3
@@ -18,13 +20,22 @@ ota:
 - platform: esphome
 
 wifi:
-  ssid: "wifi_ssid"
-  password: "wifi_password"
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
 
 external_components:
-  - source:
-      type: local
-      path: components
+  - source: github://Tomer27cz/xt211
+    components: [xt211]
+
+switch:
+  - platform: gpio
+    pin: GPIO4
+    id: indicator_led
+    internal: True
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time
 
 uart:
   id: bus_1
@@ -36,95 +47,182 @@ uart:
   stop_bits: 1
 
 xt211:
-  push_show_log: true
+
+number:
+  - platform: template
+    id: select_pulse_rate
+    name: 'Puls rate - imp/kWh'
+    optimistic: true
+    mode: box
+    min_value: 100
+    max_value: 10000
+    step: 100
+    restore_value: yes
+    initial_value: 1000
+
+button:
+  - platform: restart
+    name: "Restart"
 
 text_sensor:
   - platform: xt211
-    name: Serial number
+    name: "Serial number"
     obis_code: 0.0.96.1.1.255
     entity_category: diagnostic
   - platform: xt211
-    name: Disconnector state
-    obis_code: 0.0.96.3.10.255
-    entity_category: diagnostic
-  - platform: xt211
-    name: Limmiter
+    name: "Limmiter"
     obis_code: 0.0.17.0.0.255
     entity_category: diagnostic  
 
   - platform: xt211
-    name: Current tariff
+    name: "Current tariff"
     obis_code: 0.0.96.14.0.255
     entity_category: diagnostic
-  
+
+binary_sensor:
   - platform: xt211
-    name: Relay 1
+    name: "Disconnector state"
+    obis_code: 0.0.96.3.10.255
+  - platform: xt211
+    name: "Relay 1"
     obis_code: 0.1.96.3.10.255
   - platform: xt211
-    name: Relay 2
+    name: "Relay 2"
     obis_code: 0.2.96.3.10.255
   - platform: xt211
-    name: Relay 3
+    name: "Relay 3"
     obis_code: 0.3.96.3.10.255
   - platform: xt211
-    name: Relay 4
+    name: "Relay 4"
     obis_code: 0.4.96.3.10.255
 
 sensor:
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: 60s
+  
+  - platform: template
+    id: power_consumption
+    name: "Power Consumption"
+    unit_of_measurement: 'W'
+    accuracy_decimals: 0
+    device_class: power
+    state_class: measurement
+    icon: mdi:flash
+
+  - platform: pulse_meter
+    name: 'Pulse Power Consumption'
+    id: sensor_energy_pulse_meter
+    unit_of_measurement: 'W'
+    state_class: measurement
+    device_class: power
+    icon: mdi:flash-outline
+    accuracy_decimals: 0
+    pin: GPIO6
+
+    on_raw_value: 
+      then:
+        - switch.turn_on: indicator_led
+        - delay: 100ms
+        - switch.turn_off: indicator_led  
+    on_value:
+      then:
+        - sensor.template.publish:
+            id: power_consumption
+            state: !lambda 'return x;'
+    
+    # dont know what this does but it was commented out
+    internal_filter: 100ms
+    
+    filters:
+      # Sensor can quickly transition between on and off (unintendet bevaior)
+      # this meter has max load of 13.27 kW (32A - 3 Phase - 240V) = pulse every 270ms at full load
+      - debounce: 100ms
+      # multiply value = (60 / imp value) * 1000
+      # - multiply: 60
+      # Clamp to physically possible max (13.3 kW) - if larger then drop the value
+      - lambda: |-
+          float watts = x * ((60.0 / id(select_pulse_rate).state) * 1000.0);
+          if (watts > 13300.0) return NAN;
+          return watts;
+
+      # Update the sensor with an average every 10th second. See
+      # https://github.com/klaasnicolaas/home-assistant-glow/#reduce-the-amount-of-data-the-sensors-produce
+      # for more information.
+      #- throttle_average: 10s
+      
+      # filter out impossible numbers
+      - filter_out: NaN
+      
   - platform: xt211
     id: active_energy_consumed
-    name: Energy
+    name: "Energy"
     obis_code: 1.0.1.8.0.255
     unit_of_measurement: kWh
-    accuracy_decimals: 0
+    accuracy_decimals: 3
     device_class: energy
     state_class: total_increasing
+    filters:
+      - lambda: "return x/1000.0;"
 
   - platform: xt211
     id: active_energy_consumed_t1
-    name: Energy T1
+    name: "Energy T1"
     obis_code: 1.0.1.8.1.255
     unit_of_measurement: kWh
-    accuracy_decimals: 0
+    accuracy_decimals: 3
     device_class: energy
     state_class: total_increasing
+    filters:
+      - lambda: "return x/1000.0;"
   - platform: xt211
     id: active_energy_consumed_t2
-    name: Energy T2
+    name: "Energy T2"
     obis_code: 1.0.1.8.2.255
     unit_of_measurement: kWh
-    accuracy_decimals: 0
+    accuracy_decimals: 3
     device_class: energy
     state_class: total_increasing
+    filters:
+      - lambda: "return x/1000.0;"
   - platform: xt211
     id: active_energy_consumed_t3
-    name: Energy T3
+    name: "Energy T3"
     obis_code: 1.0.1.8.3.255
     unit_of_measurement: kWh
-    accuracy_decimals: 0
+    accuracy_decimals: 3
     device_class: energy
     state_class: total_increasing
+    filters:
+      - lambda: "return x/1000.0;"
   - platform: xt211
     id: active_energy_consumed_t4
-    name: Energy T4
+    name: "Energy T4"
     obis_code: 1.0.1.8.4.255
     unit_of_measurement: kWh
-    accuracy_decimals: 0
+    accuracy_decimals: 3
     device_class: energy
     state_class: total_increasing
+    filters:
+      - lambda: "return x/1000.0;"
 
   - platform: xt211
     id: active_power
-    name: Active power consumption
+    name: "Active power consumption"
     obis_code: 1.0.1.7.0.255
     unit_of_measurement: W
     accuracy_decimals: 0
     device_class: power
     state_class: measurement
+    on_value:
+      then:
+        - sensor.template.publish:
+            id: power_consumption
+            state: !lambda 'return x;'
 
   - platform: xt211
     id: active_power_l1
-    name: Active power consumption L1
+    name: "Active power consumption L1"
     obis_code: 1.0.21.7.0.255
     unit_of_measurement: W
     accuracy_decimals: 0
@@ -132,7 +230,7 @@ sensor:
     state_class: measurement
   - platform: xt211
     id: active_power_l2
-    name: Active power consumption L2
+    name: "Active power consumption L2"
     obis_code: 1.0.41.7.0.255
     unit_of_measurement: W
     accuracy_decimals: 0
@@ -140,7 +238,7 @@ sensor:
     state_class: measurement
   - platform: xt211
     id: active_power_l3
-    name: Active power consumption L3
+    name: "Active power consumption L3"
     obis_code: 1.0.61.7.0.255
     unit_of_measurement: W
     accuracy_decimals: 0
@@ -149,7 +247,7 @@ sensor:
   
   - platform: xt211
     id: active_power_delivery
-    name: Active power delivery
+    name: "Active power delivery"
     obis_code: 1.0.2.7.0.255
     unit_of_measurement: W
     accuracy_decimals: 0
@@ -158,7 +256,7 @@ sensor:
 
   - platform: xt211
     id: active_power_l1_delivery
-    name: Active power L1 delivery
+    name: "Active power L1 delivery"
     obis_code: 1.0.22.7.0.255
     unit_of_measurement: W
     accuracy_decimals: 0
@@ -166,7 +264,7 @@ sensor:
     state_class: measurement
   - platform: xt211
     id: active_power_l2_delivery
-    name: Active power L2 delivery
+    name: "Active power L2 delivery"
     obis_code: 1.0.42.7.0.255
     unit_of_measurement: W
     accuracy_decimals: 0
@@ -174,7 +272,7 @@ sensor:
     state_class: measurement
   - platform: xt211
     id: active_power_l3_delivery
-    name: Active power L3 delivery
+    name: "Active power L3 delivery"
     obis_code: 1.0.62.7.0.255
     unit_of_measurement: W
     accuracy_decimals: 0
