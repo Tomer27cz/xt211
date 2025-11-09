@@ -82,21 +82,21 @@ Více o PulseMeteru najdeš v dokumentaci [Home Assistant Glow documentation](ht
 
 ESPHome zařízení a RS485 převodník jsem dal do malé projektové krabičky.
 
-### [Box.stl](3d print/Box.stl)
-![Project Box](3d print/Box.png)
+### [Box.stl](3d%20print/Box.stl)
+![Project Box](3d%20print/Box.png)
 
 Krabičku pro fotodiodu jsem převzal z Home Assistant Glow.
 
-### [Sensor_bottom_side_v1.stl](3d print/Sensor_bottom_side_v1.stl)
-![Sensor Box bottom](3d print/Sensor_bottom_side_v1.png)
+### [Sensor_bottom_side_v1.stl](3d%20print/Sensor_bottom_side_v1.stl)
+![Sensor Box bottom](3d%20print/Sensor_bottom_side_v1.png)
 
-### [Sensor_top_side_v1.stl](3d print/Sensor_top_side_v1.stl)
-![Sensor Box top](3d print/Sensor_top_side_v1.png)
+### [Sensor_top_side_v1.stl](3d%20print/Sensor_top_side_v1.stl)
+![Sensor Box top](3d%20print/Sensor_top_side_v1.png)
 
 Vyrobil jsem rám pro upevnění senzoru na elektroměr XT211.
 
-### [Frame XT211 Wide.stl](3d print/Frame XT211 Wide.stl)
-![Frame XT211 Wide](3d print/Frame XT211 Wide.png)
+### [Frame XT211 Wide.stl](3d%20print/Frame%20XT211%20Wide.stl)
+![Frame XT211 Wide](3d%20print/Frame%20XT211%20Wide.png)
 
 # Schéma zapojení
 

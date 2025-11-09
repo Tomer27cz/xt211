@@ -83,21 +83,21 @@ For more information about the PulseMeter, see the [Home Assistant Glow document
 
 I mounted the ESPHome device and the RS485 to TTL converter inside a small project box.
 
-### [Box.stl](3d print/Box.stl)
-![Project Box](3d print/Box.png)
+### [Box.stl](3d%20print/Box.stl)
+![Project Box](3d%20print/Box.png)
 
 I took the photodiode sensor box from the Home Assistant Glow meter.
 
-### [Sensor_bottom_side_v1.stl](3d print/Sensor_bottom_side_v1.stl)
-![Sensor Box bottom](3d print/Sensor_bottom_side_v1.png)
+### [Sensor_bottom_side_v1.stl](3d%20print/Sensor_bottom_side_v1.stl)
+![Sensor Box bottom](3d%20print/Sensor_bottom_side_v1.png)
 
-### [Sensor_top_side_v1.stl](3d print/Sensor_top_side_v1.stl)
-![Sensor Box top](3d print/Sensor_top_side_v1.png)
+### [Sensor_top_side_v1.stl](3d%20print/Sensor_top_side_v1.stl)
+![Sensor Box top](3d%20print/Sensor_top_side_v1.png)
 
 I made a Frame for mounting the sensor box on the XT211 meter.
 
-### [Frame XT211 Wide.stl](3d print/Frame XT211 Wide.stl)
-![Frame XT211 Wide](3d print/Frame XT211 Wide.png)
+### [Frame XT211 Wide.stl](3d%20print/Frame%20XT211%20Wide.stl)
+![Frame XT211 Wide](3d%20print/Frame%20XT211%20Wide.png)
 
 # Wiring diagram
 
