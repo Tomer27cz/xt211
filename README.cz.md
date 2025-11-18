@@ -124,7 +124,7 @@ Activity LED (volitelné):
 - Katoda → GND
 
 Power Led (volitelné):
-- Anoda → 5V (+ 220 ohmový rezistor - pro nižší jas)
+- Anoda → 5V (+ 4700 ohmový rezistor - pro nižší jas)
 - Katoda → GND
 
 # Custom ESPHome komponenta
