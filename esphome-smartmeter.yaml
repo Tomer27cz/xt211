@@ -8,6 +8,7 @@ esp32:
   variant: esp32c3
   framework:
     type: esp-idf
+    version: 5.4.1
 
 # Enable logging
 logger:
