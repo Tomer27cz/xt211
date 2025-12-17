@@ -140,6 +140,20 @@ For a more detailed description of the component, see the [esphome-dlms-cosem re
 
 ### For full configuration file, see: [esphome-smartmeter.yaml](esphome-smartmeter.yaml)
 
+### Temporary FIX - esp-idf version 5.4.1
+Due to some issues with the latest esp-idf version 5.5.x, You have to temporarily downgrade to version 5.4.1.
+
+In your `esphome` configuration file, add the following lines at the top (for esp32c3):
+
+```yaml
+esp32:
+  variant: esp32c3
+  framework:
+    type: esp-idf
+    version: 5.4.1
+```
+
+
 Add the external component to your ESPHome configuration:
 
 ```yaml

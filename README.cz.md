@@ -139,6 +139,18 @@ Více detailů v projektu [esphome-dlms-cosem repository](https://github.com/lat
 
 ### Kompletní konfigurace: [esphome-smartmeter.yaml](esphome-smartmeter.yaml)
 
+### Dočasná Oprava - esp-idf verze 5.4.1
+
+Kvůli problémům s novou verzí esp-idf, je potřeba použít esp-idf verzi 5.4.1.
+
+```yaml
+esp32:
+  variant: esp32c3
+  framework:
+    type: esp-idf
+    version: 5.4.1
+```
+
 Přidej externí komponentu:
 
 ```yaml
