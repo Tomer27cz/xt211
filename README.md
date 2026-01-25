@@ -1,5 +1,15 @@
 # ESPHome DLMS/Cosem PUSH RS485 readout
+
+![Maintained](https://img.shields.io/maintenance/yes/2026)
+[![GitHub license](https://img.shields.io/github/license/Tomer27cz/xt211)](https://img.shields.io/github/license/Tomer27cz/xt211/blob/master/LICENSE)
+![GitHub Repo stars](https://img.shields.io/github/stars/Tomer27cz/xt211?style=flat)
+![GitHub issues](https://img.shields.io/github/issues/Tomer27cz/xt211?style=flat)
+![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-pr/Tomer27cz/xt211)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Tomer27cz/xt211/total)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Tomer27cz/xt211)
+
 ### For Sagecom XT211 smart meter used by ČEZ Distribuce (Czechia)
+
 ### [[Česká verze]](README.cz.md)
 
 My electricity provider (ČEZ Distribuce) has just installed a new smart meter at my home. Up until this time I was using the [Home Assistant Glow](https://glow-energy.io/) to track my household energy consumption. So I was excited to finnaly get my hands on the new smart meter and see if I can read out the data from it. Unfortunately it was not as easy as I hoped, but after many failed attempts I managed to get it working, and I want to share my experience with you.

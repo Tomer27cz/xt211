@@ -1,4 +1,13 @@
 # ESPHome DLMS/Cosem PUSH RS485 čtení
+
+![Maintained](https://img.shields.io/maintenance/yes/2026)
+[![GitHub license](https://img.shields.io/github/license/Tomer27cz/xt211)](https://img.shields.io/github/license/Tomer27cz/xt211/blob/master/LICENSE)
+![GitHub Repo stars](https://img.shields.io/github/stars/Tomer27cz/xt211?style=flat)
+![GitHub issues](https://img.shields.io/github/issues/Tomer27cz/xt211?style=flat)
+![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-pr/Tomer27cz/xt211)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Tomer27cz/xt211/total)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Tomer27cz/xt211)
+
 ### [[English Version]](README.md)
 
 Můj poskytovatel elektřiny (ČEZ Distribuce) mi právě nainstaloval nový chytrý elektroměr. Až do teď jsem používal [Home Assistant Glow](https://glow-energy.io/) pro sledování spotřeby domácnosti. Takže jsem byl nadšený, že se konečně dostanu k novému elektroměru a zkusím z něj číst data. Bohužel to nebylo tak jednoduché, jak jsem doufal, ale po mnoha neúspěšných pokusech se mi to povedlo rozchodit a chci se s vámi podělit o zkušenosti.
