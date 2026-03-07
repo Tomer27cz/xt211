@@ -140,11 +140,11 @@ Power Led (optional):
 
 # Custom ESPHome component 
 
-To read out the DLMS/Cosem PUSH messages from the Sagecom XT211 meter, I modified the existing [esphome-dlms-cosem](https://github.com/latonita/esphome-dlms-cosem).
+There are two versions in this repository:
+- `xt211` - the original version that I used for my setup, which is based on the [esphome-dlms-cosem](https://github.com/latonita/esphome-dlms-cosem)
+- `dlms_push` - written from scratch (no longer using Gurux Libraries) using common esphome component structure, it is more flexible and easier to maintain.
 
-Removed the polling functionality, fixed some bugs, and added support for binary sensors.
-
-For a more detailed description of the component, see the [esphome-dlms-cosem repository](https://github.com/latonita/esphome-dlms-cosem) from [latonita](https://github.com/latonita)
+I will be using and maintaining the `dlms_push` version, but the `xt211` version is still available for reference and for those who want to use it as is.
 
 ## ESPHome configuration
 
@@ -164,11 +164,13 @@ Add the external component to your ESPHome configuration:
 ```yaml
 external_components:
   - source: github://Tomer27cz/xt211
-    components: [xt211]
+    components: [dlms_push]
     refresh: 1s
 ```
-Then configure the DLMS/Cosem component:
-- push_show_log: true (optional, for debugging purposes - shows all received PUSH messages in the log)
+The configuration options are:
+- `show_log` (optional, default: `false`) - whether to show the log of the DLMS/COSEM communication. This is useful for debugging and first setup, but it can be quite verbose.
+- `receive_timeout` (optional, default: `50ms`) - the timeout for receiving data from the meter. If the meter does not send any data within this time, the communication is considered finished and it will be processed.
+- `custom_pattern` (optional) - custom COSEM object pattern
 
 Disable the log onece everything is working fine.
 
@@ -182,8 +184,9 @@ uart:
   parity: NONE
   stop_bits: 1
 
-xt211:
-  push_show_log: true
+dlms_push:
+  id: my_dlms_meter
+  uart_id: bus_1
 ```
 
 ### Number sensor (`sensor`)
@@ -191,7 +194,7 @@ My electricity consumption is measured in kWh, but the meter sends the value in 
 
 ```yaml
 sensor:
-  - platform: xt211
+  - platform: dlms_push
     id: active_energy_consumed
     name: "Energy"
     obis_code: 1.0.1.8.0.255
@@ -208,7 +211,7 @@ The binary sensor is `false` when the value is 0, and `true` when the value is a
 
 ```yaml
 binary_sensor:
-  - platform: xt211
+  - platform: dlms_push
     name: "Relay 1"
     obis_code: 0.1.96.3.10.255
 ```
@@ -218,7 +221,7 @@ The text sensor is used to display string values sent by the meter.
 
 ```yaml
 text_sensor:
-  - platform: xt211
+  - platform: dlms_push
     name: "Serial number"
     obis_code: 0.0.96.1.1.255
     entity_category: diagnostic
@@ -306,7 +309,7 @@ sensor:
   
   [... pulse meter from above ...]
   
-  - platform: xt211
+  - platform: dlms_push
     id: active_power
     name: "Active power consumption"
     obis_code: 1.0.1.7.0.255

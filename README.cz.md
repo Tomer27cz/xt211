@@ -138,11 +138,11 @@ Power Led (volitelné):
 
 # Custom ESPHome komponenta
 
-Pro čtení PUSH zpráv DLMS/Cosem z XT211 jsem upravil existující projekt [esphome-dlms-cosem](https://github.com/latonita/esphome-dlms-cosem).
+Existují dvě verze komponenty v tomto repozitáři:
+- `xt211` - původní verze, kterou jsem použil pro svůj setup, založená na [esphome-dlms-cosem](https://github.com/latonita/esphome-dlms-cosem&#41)
+- `dlms_push` - napsaná od začátku (už nepoužívá Gurux knihovny) se strukturou esphome komponentů, je flexibilnější a snazší na údržbu.
 
-Odstranil jsem polling, opravil pár chyb a přidal podporu pro binární senzory.
-
-Více detailů v projektu [esphome-dlms-cosem repository](https://github.com/latonita/esphome-dlms-cosem) od [latonita](https://github.com/latonita)
+- Používám a budu udržovat verzi `dlms_push`, ale verze `xt211` je stále k dispozici pro referenci a pro ty, kteří ji chtějí použít tak, jak je.
 
 ## ESPHome konfigurace
 
@@ -160,13 +160,24 @@ Přidej externí komponentu:
 ```yaml
 external_components:
   - source: github://Tomer27cz/xt211
-    components: [xt211]
+    components: [dlms_push]
     refresh: 1s
 ```
-Poté nastav DLMS/Cosem komponentu:
-- push_show_log: true (volitelné, bude zobrazovat surové PUSH zprávy v logu pro debug a testování)
 
-Až to bude fungovat, logy vypni.
+[//]: # (The configuration options are:)
+
+[//]: # (- `show_log` &#40;optional, default: `false`&#41; - whether to show the log of the DLMS/COSEM communication. This is useful for debugging and first setup, but it can be quite verbose.)
+
+[//]: # (- `receive_timeout` &#40;optional, default: `50ms`&#41; - the timeout for receiving data from the meter. If the meter does not send any data within this time, the communication is considered finished and it will be processed.)
+
+[//]: # (- `custom_pattern` &#40;optional&#41; - custom COSEM object pattern)
+
+Konfigurační možnosti jsou:
+- `show_log` (volitelné, výchozí: `false`) - zda zobrazit log komunikace DLMS/COSEM. To je užitečné pro ladění a první nastavení, ale může být docela obsáhlé.
+- `receive_timeout` (volitelné, výchozí: `50ms`) - časový limit pro přijímání dat z elektroměru. Pokud elektroměr během této doby nepošle žádná data, komunikace se považuje za ukončenou a bude zpracována.
+- `custom_pattern` (volitelné) - vlastní vzor COSEM objektů
+
+Až bude komponenta fungovat, můžeš nastavit `show_log` na `false`, aby se logy přestaly zobrazovat.
 
 ```yaml
 uart:
@@ -178,8 +189,9 @@ uart:
   parity: NONE
   stop_bits: 1
 
-xt211:
-  push_show_log: true
+dlms_push:
+  id: my_dlms_meter
+  uart_id: bus_1
 ```
 
 ### Number sensor (`sensor`)
@@ -187,7 +199,7 @@ Moje spotřeba elektřiny se měří v kWh, ale elektroměr odesílá hodnotu ve
 
 ```yaml
 sensor:
-  - platform: xt211
+  - platform: dlms_push
     id: active_energy_consumed
     name: "Energy"
     obis_code: 1.0.1.8.0.255
@@ -204,7 +216,7 @@ Binární senzor má hodnotu `false`, pokud je hodnota 0, a hodnotu `true`, poku
 
 ```yaml
 binary_sensor:
-  - platform: xt211
+  - platform: dlms_push
     name: "Relay 1"
     obis_code: 0.1.96.3.10.255
 ```
@@ -213,7 +225,7 @@ binary_sensor:
 
 ```yaml
 text_sensor:
-  - platform: xt211
+  - platform: dlms_push
     name: "Serial number"
     obis_code: 0.0.96.1.1.255
     entity_category: diagnostic
@@ -301,7 +313,7 @@ sensor:
 
   [... pulzní měřič z výše uvedeného configu ...]
   
-  - platform: xt211
+  - platform: dlms_push
     id: active_power
     name: "Active power consumption"
     obis_code: 1.0.1.7.0.255

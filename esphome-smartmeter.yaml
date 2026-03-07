@@ -1,5 +1,5 @@
 esphome:
-  name: "esp32c3-2"
+  name: "smartmeter"
   friendly_name: SmartMeter
   min_version: 2025.9.0
   name_add_mac_suffix: false
@@ -8,7 +8,6 @@ esp32:
   variant: esp32c3
   framework:
     type: esp-idf
-    version: 5.4.1
 
 # Enable logging
 logger:
@@ -26,18 +25,12 @@ wifi:
 
 external_components:
   - source: github://Tomer27cz/xt211
-    components: [xt211]
+    components: [dlms_push]
     refresh: 1s
 
-switch:
-  - platform: gpio
-    pin: GPIO4
-    id: indicator_led
-    internal: True
-
-time:
-  - platform: homeassistant
-    id: homeassistant_time
+dlms_push:
+  id: my_dlms_meter
+  uart_id: bus_1
 
 uart:
   id: bus_1
@@ -48,12 +41,20 @@ uart:
   parity: NONE
   stop_bits: 1
 
-xt211:
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+
+switch:
+  - platform: gpio
+    pin: GPIO4
+    id: indicator_led
+    internal: True
 
 number:
   - platform: template
     id: select_pulse_rate
-    name: 'Puls rate - imp/kWh'
+    name: 'Puls rate - imp⁄kWh'
     optimistic: true
     mode: box
     min_value: 100
@@ -67,42 +68,63 @@ button:
     name: "Restart"
 
 text_sensor:
-  - platform: xt211
+  - platform: wifi_info
+    ip_address:
+      name: "ZZ - IP Address"
+    ssid:
+      name: "ZZ - SSID"
+    bssid:
+      name: "ZZ - BSSID"
+    mac_address:
+      name: "ZZ - Address"
+    dns_address:
+      name: "ZZ - DNS Address"
+
+  - platform: dlms_push
     name: "Serial number"
     obis_code: 0.0.96.1.1.255
     entity_category: diagnostic
-  - platform: xt211
+  - platform: dlms_push
     name: "Limmiter"
     obis_code: 0.0.17.0.0.255
-    entity_category: diagnostic  
+    entity_category: diagnostic
 
-  - platform: xt211
+  - platform: dlms_push
     name: "Current tariff"
     obis_code: 0.0.96.14.0.255
     entity_category: diagnostic
 
 binary_sensor:
-  - platform: xt211
+  - platform: status
+    name: "ZZ - Status"
+
+  - platform: dlms_push
     name: "Disconnector state"
     obis_code: 0.0.96.3.10.255
-  - platform: xt211
+  - platform: dlms_push
     name: "Relay 1"
     obis_code: 0.1.96.3.10.255
-  - platform: xt211
+  - platform: dlms_push
     name: "Relay 2"
     obis_code: 0.2.96.3.10.255
-  - platform: xt211
+  - platform: dlms_push
     name: "Relay 3"
     obis_code: 0.3.96.3.10.255
-  - platform: xt211
+  - platform: dlms_push
     name: "Relay 4"
     obis_code: 0.4.96.3.10.255
 
 sensor:
-  - platform: wifi_signal
-    name: "WiFi Signal"
+  - platform: uptime
+    name: 'ZZ - Uptime'
     update_interval: 60s
-  
+  - platform: wifi_signal
+    name: "ZZ - WiFi Signal"
+    update_interval: 60s
+  - platform: internal_temperature
+    name: "ZZ - CPU Temp"
+    update_interval: 60s
+
   - platform: template
     id: power_consumption
     name: "Power Consumption"
@@ -122,20 +144,20 @@ sensor:
     accuracy_decimals: 0
     pin: GPIO6
 
-    on_raw_value: 
+    on_raw_value:
       then:
         - switch.turn_on: indicator_led
         - delay: 100ms
-        - switch.turn_off: indicator_led  
+        - switch.turn_off: indicator_led
     on_value:
       then:
         - sensor.template.publish:
             id: power_consumption
             state: !lambda 'return x;'
-    
+
     # dont know what this does but it was commented out
     internal_filter: 100ms
-    
+
     filters:
       # Sensor can quickly transition between on and off (unintendet bevaior)
       # this meter has max load of 13.27 kW (32A - 3 Phase - 240V) = pulse every 270ms at full load
@@ -152,11 +174,11 @@ sensor:
       # https://github.com/klaasnicolaas/home-assistant-glow/#reduce-the-amount-of-data-the-sensors-produce
       # for more information.
       #- throttle_average: 10s
-      
+
       # filter out impossible numbers
       - filter_out: NaN
-      
-  - platform: xt211
+
+  - platform: dlms_push
     id: active_energy_consumed
     name: "Energy"
     obis_code: 1.0.1.8.0.255
@@ -167,7 +189,7 @@ sensor:
     filters:
       - lambda: "return x/1000.0;"
 
-  - platform: xt211
+  - platform: dlms_push
     id: active_energy_consumed_t1
     name: "Energy T1"
     obis_code: 1.0.1.8.1.255
@@ -177,7 +199,7 @@ sensor:
     state_class: total_increasing
     filters:
       - lambda: "return x/1000.0;"
-  - platform: xt211
+  - platform: dlms_push
     id: active_energy_consumed_t2
     name: "Energy T2"
     obis_code: 1.0.1.8.2.255
@@ -187,7 +209,7 @@ sensor:
     state_class: total_increasing
     filters:
       - lambda: "return x/1000.0;"
-  - platform: xt211
+  - platform: dlms_push
     id: active_energy_consumed_t3
     name: "Energy T3"
     obis_code: 1.0.1.8.3.255
@@ -197,7 +219,7 @@ sensor:
     state_class: total_increasing
     filters:
       - lambda: "return x/1000.0;"
-  - platform: xt211
+  - platform: dlms_push
     id: active_energy_consumed_t4
     name: "Energy T4"
     obis_code: 1.0.1.8.4.255
@@ -208,7 +230,7 @@ sensor:
     filters:
       - lambda: "return x/1000.0;"
 
-  - platform: xt211
+  - platform: dlms_push
     id: active_power
     name: "Active power consumption"
     obis_code: 1.0.1.7.0.255
@@ -222,7 +244,7 @@ sensor:
             id: power_consumption
             state: !lambda 'return x;'
 
-  - platform: xt211
+  - platform: dlms_push
     id: active_power_l1
     name: "Active power consumption L1"
     obis_code: 1.0.21.7.0.255
@@ -230,7 +252,7 @@ sensor:
     accuracy_decimals: 0
     device_class: power
     state_class: measurement
-  - platform: xt211
+  - platform: dlms_push
     id: active_power_l2
     name: "Active power consumption L2"
     obis_code: 1.0.41.7.0.255
@@ -238,7 +260,7 @@ sensor:
     accuracy_decimals: 0
     device_class: power
     state_class: measurement
-  - platform: xt211
+  - platform: dlms_push
     id: active_power_l3
     name: "Active power consumption L3"
     obis_code: 1.0.61.7.0.255
@@ -246,8 +268,8 @@ sensor:
     accuracy_decimals: 0
     device_class: power
     state_class: measurement
-  
-  - platform: xt211
+
+  - platform: dlms_push
     id: active_power_delivery
     name: "Active power delivery"
     obis_code: 1.0.2.7.0.255
@@ -256,7 +278,7 @@ sensor:
     device_class: power
     state_class: measurement
 
-  - platform: xt211
+  - platform: dlms_push
     id: active_power_l1_delivery
     name: "Active power L1 delivery"
     obis_code: 1.0.22.7.0.255
@@ -264,7 +286,7 @@ sensor:
     accuracy_decimals: 0
     device_class: power
     state_class: measurement
-  - platform: xt211
+  - platform: dlms_push
     id: active_power_l2_delivery
     name: "Active power L2 delivery"
     obis_code: 1.0.42.7.0.255
@@ -272,7 +294,7 @@ sensor:
     accuracy_decimals: 0
     device_class: power
     state_class: measurement
-  - platform: xt211
+  - platform: dlms_push
     id: active_power_l3_delivery
     name: "Active power L3 delivery"
     obis_code: 1.0.62.7.0.255
