@@ -65,7 +65,11 @@ size_t DlmsParser::parse(const uint8_t *buffer, size_t length, DlmsDataCallback 
   // First byte after flag should be the data type (usually Structure or Array)
   uint8_t start_type = this->read_byte_();
   if (start_type != DLMS_DATA_TYPE_STRUCTURE && start_type != DLMS_DATA_TYPE_ARRAY) {
-    if (this->show_log_) ESP_LOGW(TAG, "Expected STRUCTURE or ARRAY after header, found type %02X at position %zu", start_type, this->pos_ - 1);
+    if (this->show_log_) {
+      ESP_LOGW(TAG, "Expected STRUCTURE or ARRAY after header, found type %02X at position %zu",
+               start_type, this->pos_ - 1);
+    }
+
     return 0;
   }
 
@@ -75,7 +79,10 @@ size_t DlmsParser::parse(const uint8_t *buffer, size_t length, DlmsDataCallback 
     ESP_LOGV(TAG, "Some errors occurred parsing DLMS data, or unexpected end of buffer.");
   }
 
-  if (this->show_log_) ESP_LOGD(TAG, "Parsing completed. Processed %zu bytes, found %zu objects", this->pos_, this->objects_found_);
+  if (this->show_log_) {
+    ESP_LOGD(TAG, "Parsing completed. Processed %zu bytes, found %zu objects", this->pos_, this->objects_found_);
+  }
+
   return this->objects_found_;
 }
 
@@ -249,7 +256,11 @@ bool DlmsParser::parse_sequence_(uint8_t type, uint8_t depth) {
     }
 
     if (this->pos_ >= this->buffer_len_) {
-      if (this->show_log_) ESP_LOGV(TAG, "Unexpected end while reading element %d of %s", elements_consumed + 1, type == DLMS_DATA_TYPE_STRUCTURE ? "STRUCTURE" : "ARRAY");
+      if (this->show_log_) {
+        ESP_LOGV(TAG, "Unexpected end while reading element %d of %s", elements_consumed + 1,
+                 type == DLMS_DATA_TYPE_STRUCTURE ? "STRUCTURE" : "ARRAY");
+      }
+
       return false;
     }
 
@@ -258,7 +269,11 @@ bool DlmsParser::parse_sequence_(uint8_t type, uint8_t depth) {
     elements_consumed++;
 
     if (this->pos_ == original_position) {
-      if (this->show_log_) ESP_LOGV(TAG, "No progress parsing element %d at position %zu, aborting to avoid infinite loop", elements_consumed, original_position);
+      if (this->show_log_) {
+        ESP_LOGV(TAG, "No progress parsing element %d at position %zu, aborting to avoid infinite loop",
+                 elements_consumed, original_position);
+      }
+
       return false;
     }
   }
@@ -320,7 +335,8 @@ bool DlmsParser::try_match_patterns_(uint8_t elem_idx) {
   return false;
 }
 
-bool DlmsParser::match_pattern_(uint8_t elem_idx, const AxdrDescriptorPattern &pat, uint8_t &elements_consumed_at_level0) {
+bool DlmsParser::match_pattern_(uint8_t elem_idx, const AxdrDescriptorPattern &pat,
+                                uint8_t &elements_consumed_at_level0) {
   AxdrCaptures cap{};
   elements_consumed_at_level0 = 0;
   uint8_t level = 0;
@@ -452,7 +468,9 @@ float DlmsParser::data_as_float_(DlmsDataType value_type, const uint8_t *ptr, ui
   if (!ptr || len == 0) return 0.0f;
 
   auto be16 = [](const uint8_t *p) { return (uint16_t)((p[0] << 8) | p[1]); };
-  auto be32 = [](const uint8_t *p) { return ((uint32_t)p[0] << 24) | ((uint32_t)p[1] << 16) | ((uint32_t)p[2] << 8) | (uint32_t)p[3]; };
+  auto be32 = [](const uint8_t *p) {
+    return ((uint32_t)p[0] << 24) | ((uint32_t)p[1] << 16) | ((uint32_t)p[2] << 8) | (uint32_t)p[3];
+  };
   auto be64 = [](const uint8_t *p) {
     return ((uint64_t)p[0] << 56) | ((uint64_t)p[1] << 48) | ((uint64_t)p[2] << 40) | ((uint64_t)p[3] << 32) |
            ((uint64_t)p[4] << 24) | ((uint64_t)p[5] << 16) | ((uint64_t)p[6] << 8)  | (uint64_t)p[7];
@@ -488,7 +506,8 @@ float DlmsParser::data_as_float_(DlmsDataType value_type, const uint8_t *ptr, ui
   }
 }
 
-void DlmsParser::data_to_string_(DlmsDataType value_type, const uint8_t *ptr, uint8_t len, char *buffer, size_t max_len) {
+void DlmsParser::data_to_string_(DlmsDataType value_type, const uint8_t *ptr, uint8_t len,
+                                 char *buffer, size_t max_len) {
   if (max_len > 0) buffer[0] = '\0';
   if (!ptr || len == 0 || max_len == 0) return;
 
@@ -502,7 +521,9 @@ void DlmsParser::data_to_string_(DlmsDataType value_type, const uint8_t *ptr, ui
   };
 
   auto be16 = [](const uint8_t *p) { return (uint16_t)((p[0] << 8) | p[1]); };
-  auto be32 = [](const uint8_t *p) { return ((uint32_t)p[0] << 24) | ((uint32_t)p[1] << 16) | ((uint32_t)p[2] << 8) | (uint32_t)p[3]; };
+  auto be32 = [](const uint8_t *p) {
+    return ((uint32_t)p[0] << 24) | ((uint32_t)p[1] << 16) | ((uint32_t)p[2] << 8) | (uint32_t)p[3];
+  };
   auto be64 = [](const uint8_t *p) {
     uint64_t v = 0;
     for (int i = 0; i < 8; i++) v = (v << 8) | p[i];

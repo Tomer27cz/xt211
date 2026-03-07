@@ -58,7 +58,7 @@ void DlmsPushComponent::dump_config() {
 void DlmsPushComponent::loop() {
   this->read_rx_buffer_();
 
-  if (this->receiving_ && (App.get_loop_component_start_time() - this->last_rx_char_time_ > this->receive_timeout_ms_)) {
+  if (this->receiving_ && (App.get_loop_component_start_time()-this->last_rx_char_time_ > this->receive_timeout_ms_)) {
     this->receiving_ = false;
     this->process_frame_();
   }
@@ -103,7 +103,8 @@ void DlmsPushComponent::process_frame_() {
   size_t parsed_objects = this->parser_->parse(this->rx_buffer_.get(), this->rx_buffer_len_, callback, this->show_log_);
 
   if (this->show_log_) {
-    ESP_LOGD(TAG, "PUSH data parsing complete: %zu objects, bytes consumed %zu/%zu", parsed_objects, this->rx_buffer_len_, this->rx_buffer_len_);
+    ESP_LOGD(TAG, "PUSH data parsing complete: %zu objects, bytes consumed %zu/%zu", parsed_objects,
+             this->rx_buffer_len_, this->rx_buffer_len_);
   }
 
   this->rx_buffer_len_ = 0;
