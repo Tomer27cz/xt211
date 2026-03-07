@@ -4,7 +4,6 @@
 #include <functional>
 #include <string>
 #include <vector>
-#include <list>
 
 namespace esphome {
 namespace dlms_push {
@@ -37,7 +36,7 @@ enum DlmsDataType : uint8_t {
 };
 
 // Callback for the hub: OBIS code (e.g. "1.0.1.8.0.255"), numeric value, string value, is_numeric flag
-using DlmsDataCallback = std::function<void(const std::string &obis_code, float float_val, const std::string &str_val, bool is_numeric)>;
+using DlmsDataCallback = std::function<void(const char *obis_code, float float_val, const char *str_val, bool is_numeric)>;
 
 // --- Pattern Matching Enums & Structs ---
 enum class AxdrTokenType : uint8_t {

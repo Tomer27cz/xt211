@@ -399,10 +399,9 @@ bool DlmsParser::match_pattern_(uint8_t elem_idx, const AxdrDescriptorPattern &p
 void DlmsParser::emit_object_(const AxdrDescriptorPattern &pat, const AxdrCaptures &c) {
   if (!c.obis || !this->callback_) return;
 
-  // Use stack-allocated buffer for OBIS to avoid string allocation
+  // Use stack-allocated buffer for OBIS to avoid heap allocation
   char obis_str_buf[32];
   this->obis_to_string_(c.obis, obis_str_buf, sizeof(obis_str_buf));
-  std::string obis_str(obis_str_buf);
 
   float raw_val_f = this->data_as_float_(c.value_type, c.value_ptr, c.value_len);
   float val_f = raw_val_f;
@@ -410,7 +409,6 @@ void DlmsParser::emit_object_(const AxdrDescriptorPattern &pat, const AxdrCaptur
   // Use stack-allocated buffer for formatting data
   char val_s_buf[128];
   this->data_to_string_(c.value_type, c.value_ptr, c.value_len, val_s_buf, sizeof(val_s_buf));
-  std::string val_s(val_s_buf);
 
   bool is_numeric = (c.value_type != DLMS_DATA_TYPE_OCTET_STRING &&
                      c.value_type != DLMS_DATA_TYPE_STRING &&
@@ -424,7 +422,7 @@ void DlmsParser::emit_object_(const AxdrDescriptorPattern &pat, const AxdrCaptur
     ESP_LOGD(TAG, "Pattern match '%s' at idx %u ===============", pat.name.c_str(), c.elem_idx);
     uint16_t cid = c.class_id ? c.class_id : pat.default_class_id;
 
-    ESP_LOGI(TAG, "Found attribute descriptor: class_id=%d, obis=%s", cid, obis_str.c_str());
+    ESP_LOGI(TAG, "Found attribute descriptor: class_id=%d, obis=%s", cid, obis_str_buf);
 
     if (c.has_scaler_unit) {
       ESP_LOGI(TAG, "Value type: %s, len %d, scaler %d, unit %d",
@@ -438,7 +436,7 @@ void DlmsParser::emit_object_(const AxdrDescriptorPattern &pat, const AxdrCaptur
       esphome::format_hex_pretty_to(hex_buf, sizeof(hex_buf), c.value_ptr, c.value_len);
       ESP_LOGI(TAG, " as hex dump : %s", hex_buf);
     }
-    ESP_LOGI(TAG, " as string   :'%s'", val_s.c_str());
+    ESP_LOGI(TAG, " as string   :'%s'", val_s_buf);
     ESP_LOGI(TAG, " as number   : %f", raw_val_f);
 
     if (c.has_scaler_unit && is_numeric) {
@@ -446,7 +444,7 @@ void DlmsParser::emit_object_(const AxdrDescriptorPattern &pat, const AxdrCaptur
     }
   }
 
-  this->callback_(obis_str, val_f, val_s, is_numeric);
+  this->callback_(obis_str_buf, val_f, val_s_buf, is_numeric);
   this->objects_found_++;
 }
 
@@ -620,7 +618,7 @@ void DlmsParser::register_pattern_dsl_(const std::string &name, const std::strin
     return s.substr(b, e - b + 1);
   };
 
-  std::list<std::string> tokens;
+  std::vector<std::string> tokens;
   std::string current;
   int paren = 0;
   for (char c : dsl) {
@@ -639,8 +637,8 @@ void DlmsParser::register_pattern_dsl_(const std::string &name, const std::strin
   }
   if (!current.empty()) tokens.push_back(trim(current));
 
-  for (auto it = tokens.begin(); it != tokens.end(); ++it) {
-    std::string tok = *it;
+  for (size_t i = 0; i < tokens.size(); i++) {
+    std::string tok = tokens[i];
     if (tok.empty()) continue;
 
     if (tok == "F") pat.steps.push_back({AxdrTokenType::EXPECT_TO_BE_FIRST});
@@ -671,7 +669,7 @@ void DlmsParser::register_pattern_dsl_(const std::string &name, const std::strin
       size_t r = tok.rfind(')');
       if (l != std::string::npos && r != std::string::npos && r > l + 1) {
         std::string inner = tok.substr(l + 1, r - l - 1);
-        std::list<std::string> inner_tokens;
+        std::vector<std::string> inner_tokens;
         std::string cur;
         for (char c2 : inner) {
           if (c2 == ',') {
@@ -685,9 +683,9 @@ void DlmsParser::register_pattern_dsl_(const std::string &name, const std::strin
 
         if (!inner_tokens.empty()) {
           pat.steps.push_back({AxdrTokenType::EXPECT_STRUCTURE_N, static_cast<uint8_t>(inner_tokens.size())});
-          inner_tokens.push_front("DN");
+          inner_tokens.insert(inner_tokens.begin(), "DN");
           inner_tokens.push_back("UP");
-          tokens.insert(std::next(it), inner_tokens.begin(), inner_tokens.end());
+          tokens.insert(tokens.begin() + i + 1, inner_tokens.begin(), inner_tokens.end());
         }
       }
     }

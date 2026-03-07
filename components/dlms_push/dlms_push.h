@@ -16,6 +16,7 @@
 #include <vector>
 #include <string>
 #include <array>
+#include <memory>
 
 namespace esphome {
 namespace dlms_push {
@@ -49,7 +50,7 @@ class DlmsPushComponent : public Component, public uart::UARTDevice {
   void read_rx_buffer_();
   void process_frame_();
 
-  void on_data_parsed_(const std::string &obis_code, float float_val, const std::string &str_val, bool is_numeric);
+  void on_data_parsed_(const char *obis_code, float float_val, const char *str_val, bool is_numeric);
 
   uint32_t receive_timeout_ms_{50};
   bool show_log_{false};
@@ -61,7 +62,7 @@ class DlmsPushComponent : public Component, public uart::UARTDevice {
   uint32_t last_rx_char_time_{0};
   bool receiving_{false};
 
-  DlmsParser *parser_{nullptr};
+  std::unique_ptr<DlmsParser> parser_;
 
 #ifdef USE_SENSOR
  struct NumericSensorEntry {
