@@ -57,7 +57,7 @@ void DlmsPushComponent::dump_config() {
 void DlmsPushComponent::loop() {
   this->read_rx_buffer_();
 
-  if (this->receiving_ && (millis() - this->last_rx_char_time_ > this->receive_timeout_ms_)) {
+  if (this->receiving_ && (App.get_loop_component_start_time() - this->last_rx_char_time_ > this->receive_timeout_ms_)) {
     this->receiving_ = false;
     this->process_frame_();
   }
@@ -68,7 +68,7 @@ void DlmsPushComponent::read_rx_buffer_() {
   if (available == 0) return;
 
   this->receiving_ = true;
-  this->last_rx_char_time_ = millis();
+  this->last_rx_char_time_ = App.get_loop_component_start_time();
 
   while (this->available()) {
     if (this->rx_buffer_len_ >= MAX_RX_BUFFER_SIZE) {

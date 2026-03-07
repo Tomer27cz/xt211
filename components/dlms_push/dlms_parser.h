@@ -113,8 +113,8 @@ class DlmsParser {
   void emit_object_(const AxdrDescriptorPattern &pat, const AxdrCaptures &c);
 
   float data_as_float_(DlmsDataType value_type, const uint8_t *ptr, uint8_t len);
-  std::string data_as_string_(DlmsDataType value_type, const uint8_t *ptr, uint8_t len);
-  std::string obis_to_string_(const uint8_t *obis);
+  std::string data_to_string_(DlmsDataType value_type, const uint8_t *ptr, uint8_t len, char *buffer, size_t max_len);
+  std::string obis_to_string_(const uint8_t *obis, char *buffer, size_t max_len);
   const char *dlms_data_type_to_string_(DlmsDataType vt);
 
   const uint8_t *buffer_{nullptr};

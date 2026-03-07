@@ -5,8 +5,7 @@
 
 #include <cmath>
 #include <cstring>
-#include <sstream>
-#include <iomanip>
+#include <cstdio>
 #include <algorithm>
 
 namespace esphome {
@@ -400,10 +399,18 @@ bool DlmsParser::match_pattern_(uint8_t elem_idx, const AxdrDescriptorPattern &p
 void DlmsParser::emit_object_(const AxdrDescriptorPattern &pat, const AxdrCaptures &c) {
   if (!c.obis || !this->callback_) return;
 
-  std::string obis_str = this->obis_to_string_(c.obis);
+  // Use stack-allocated buffer for OBIS to avoid string allocation
+  char obis_str_buf[32];
+  this->obis_to_string_(c.obis, obis_str_buf, sizeof(obis_str_buf));
+  std::string obis_str(obis_str_buf);
+
   float raw_val_f = this->data_as_float_(c.value_type, c.value_ptr, c.value_len);
   float val_f = raw_val_f;
-  std::string val_s = this->data_as_string_(c.value_type, c.value_ptr, c.value_len);
+
+  // Use stack-allocated buffer for formatting data
+  char val_s_buf[128];
+  this->data_to_string_(c.value_type, c.value_ptr, c.value_len, val_s_buf, sizeof(val_s_buf));
+  std::string val_s(val_s_buf);
 
   bool is_numeric = (c.value_type != DLMS_DATA_TYPE_OCTET_STRING &&
                      c.value_type != DLMS_DATA_TYPE_STRING &&
@@ -427,7 +434,9 @@ void DlmsParser::emit_object_(const AxdrDescriptorPattern &pat, const AxdrCaptur
     }
 
     if (c.value_ptr && c.value_len > 0) {
-      ESP_LOGI(TAG, " as hex dump : %s", esphome::format_hex_pretty(c.value_ptr, c.value_len).c_str());
+      char hex_buf[512];
+      esphome::format_hex_pretty_to(hex_buf, sizeof(hex_buf), c.value_ptr, c.value_len);
+      ESP_LOGI(TAG, " as hex dump : %s", hex_buf);
     }
     ESP_LOGI(TAG, " as string   :'%s'", val_s.c_str());
     ESP_LOGI(TAG, " as number   : %f", raw_val_f);
@@ -481,16 +490,17 @@ float DlmsParser::data_as_float_(DlmsDataType value_type, const uint8_t *ptr, ui
   }
 }
 
-std::string DlmsParser::data_as_string_(DlmsDataType value_type, const uint8_t *ptr, uint8_t len) {
-  if (!ptr || len == 0) return "";
+void DlmsParser::data_to_string_(DlmsDataType value_type, const uint8_t *ptr, uint8_t len, char *buffer, size_t max_len) {
+  if (max_len > 0) buffer[0] = '\0';
+  if (!ptr || len == 0 || max_len == 0) return;
 
-  auto hex_of = [](const uint8_t *p, uint8_t l) {
-    std::ostringstream ss;
-    ss << std::hex << std::setfill('0');
-    for (uint8_t i = 0; i < l; i++) {
-      ss << std::setw(2) << static_cast<int>(p[i]);
+  auto hex_of = [](const uint8_t *p, uint8_t l, char *out, size_t max_out) {
+    if (max_out == 0) return;
+    out[0] = '\0';
+    size_t pos = 0;
+    for (uint8_t i = 0; i < l && pos + 2 < max_out; i++) {
+      pos += snprintf(out + pos, max_out - pos, "%02x", p[i]);
     }
-    return ss.str();
   };
 
   auto be16 = [](const uint8_t *p) { return (uint16_t)((p[0] << 8) | p[1]); };
@@ -504,58 +514,70 @@ std::string DlmsParser::data_as_string_(DlmsDataType value_type, const uint8_t *
   switch (value_type) {
     case DLMS_DATA_TYPE_OCTET_STRING:
     case DLMS_DATA_TYPE_STRING:
-    case DLMS_DATA_TYPE_STRING_UTF8:
-      return std::string(reinterpret_cast<const char *>(ptr), len);
+    case DLMS_DATA_TYPE_STRING_UTF8: {
+      size_t copy_len = std::min((size_t)len, max_len - 1);
+      std::memcpy(buffer, ptr, copy_len);
+      buffer[copy_len] = '\0';
+      break;
+    }
 
     case DLMS_DATA_TYPE_BIT_STRING:
     case DLMS_DATA_TYPE_BINARY_CODED_DESIMAL:
     case DLMS_DATA_TYPE_DATETIME:
     case DLMS_DATA_TYPE_DATE:
     case DLMS_DATA_TYPE_TIME:
-      return hex_of(ptr, len);
+      hex_of(ptr, len, buffer, max_len);
+      break;
 
     case DLMS_DATA_TYPE_BOOLEAN:
     case DLMS_DATA_TYPE_ENUM:
     case DLMS_DATA_TYPE_UINT8:
-      return std::to_string(static_cast<unsigned>(ptr[0]));
+      snprintf(buffer, max_len, "%u", static_cast<unsigned>(ptr[0]));
+      break;
 
     case DLMS_DATA_TYPE_INT8:
-      return std::to_string(static_cast<int>(static_cast<int8_t>(ptr[0])));
+      snprintf(buffer, max_len, "%d", static_cast<int>(static_cast<int8_t>(ptr[0])));
+      break;
 
     case DLMS_DATA_TYPE_UINT16:
-      return len >= 2 ? std::to_string(be16(ptr)) : "";
+      if (len >= 2) snprintf(buffer, max_len, "%u", be16(ptr));
+      break;
 
     case DLMS_DATA_TYPE_INT16:
-      return len >= 2 ? std::to_string(static_cast<int16_t>(be16(ptr))) : "";
+      if (len >= 2) snprintf(buffer, max_len, "%d", static_cast<int16_t>(be16(ptr)));
+      break;
 
     case DLMS_DATA_TYPE_UINT32:
-      return len >= 4 ? std::to_string(be32(ptr)) : "";
+      if (len >= 4) snprintf(buffer, max_len, "%lu", (unsigned long)be32(ptr));
+      break;
 
     case DLMS_DATA_TYPE_INT32:
-      return len >= 4 ? std::to_string(static_cast<int32_t>(be32(ptr))) : "";
+      if (len >= 4) snprintf(buffer, max_len, "%ld", (long)static_cast<int32_t>(be32(ptr)));
+      break;
 
     case DLMS_DATA_TYPE_UINT64:
-      return len >= 8 ? std::to_string(be64(ptr)) : "";
+      if (len >= 8) snprintf(buffer, max_len, "%llu", (unsigned long long)be64(ptr));
+      break;
 
     case DLMS_DATA_TYPE_INT64:
-      return len >= 8 ? std::to_string(static_cast<int64_t>(be64(ptr))) : "";
+      if (len >= 8) snprintf(buffer, max_len, "%lld", (long long)static_cast<int64_t>(be64(ptr)));
+      break;
 
     case DLMS_DATA_TYPE_FLOAT32:
     case DLMS_DATA_TYPE_FLOAT64: {
-      std::ostringstream ss;
-      ss << this->data_as_float_(value_type, ptr, len);
-      return ss.str();
+      snprintf(buffer, max_len, "%f", this->data_as_float_(value_type, ptr, len));
+      break;
     }
 
     default:
-      return "";
+      break;
   }
 }
 
-std::string DlmsParser::obis_to_string_(const uint8_t *obis) {
-  char buf[32];
-  snprintf(buf, sizeof(buf), "%u.%u.%u.%u.%u.%u", obis[0], obis[1], obis[2], obis[3], obis[4], obis[5]);
-  return std::string(buf);
+void DlmsParser::obis_to_string_(const uint8_t *obis, char *buffer, size_t max_len) {
+  if (max_len > 0) buffer[0] = '\0';
+  if (!obis || max_len == 0) return;
+  snprintf(buffer, max_len, "%u.%u.%u.%u.%u.%u", obis[0], obis[1], obis[2], obis[3], obis[4], obis[5]);
 }
 
 const char *DlmsParser::dlms_data_type_to_string_(DlmsDataType vt) {
