@@ -2,6 +2,7 @@
 #include "dlms_parser.h"
 
 #include "esphome/core/log.h"
+#include "esphome/core/application.h"
 #include "esphome/core/helpers.h"
 
 namespace esphome {
