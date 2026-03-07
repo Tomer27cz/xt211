@@ -180,10 +180,17 @@ Konfigurační možnosti jsou:
 Až bude komponenta fungovat, můžeš nastavit `show_log` na `false`, aby se logy přestaly zobrazovat.
 
 ```yaml
+logger:
+  baud_rate: 0
+
 uart:
   id: bus_1
+  rx_pin:
+    number: GPIO21
+    mode:
+      input: true
+      pullup: true
   tx_pin: GPIO20
-  rx_pin: GPIO21
   baud_rate: 9600
   data_bits: 8
   parity: NONE
@@ -193,6 +200,10 @@ dlms_push:
   id: my_dlms_meter
   uart_id: bus_1
 ```
+
+V novějších verzích ESPHome (esp-idf > 5.x) je potřeba pro piny `uart` nastavit pull-up, jinak komunikace nebude fungovat. Proto6e výchozí stav pinů byl změněn na "floating".
+
+Používám stejné piny pro RS485 převodník jako pro logger, takže jsem musel logger vypnout nastavením `baud_rate` na 0. Pokud chceš logger ponechat povolený, můžeš použít jiné piny pro logger.
 
 ### Number sensor (`sensor`)
 Moje spotřeba elektřiny se měří v kWh, ale elektroměr odesílá hodnotu ve Wh. Proto používám lambda filtr k převodu hodnoty z Wh na kWh vydělením 1000.

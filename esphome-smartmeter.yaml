@@ -11,6 +11,7 @@ esp32:
 
 # Enable logging
 logger:
+  baud_rate: 0
 
 # Enable Home Assistant API
 api:
@@ -34,7 +35,11 @@ dlms_push:
 
 uart:
   id: bus_1
-  rx_pin: GPIO21
+  rx_pin:
+    number: GPIO21
+    mode:
+      input: true
+      pullup: true
   tx_pin: GPIO20
   baud_rate: 9600
   data_bits: 8

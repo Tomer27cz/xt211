@@ -175,10 +175,17 @@ The configuration options are:
 Disable the log onece everything is working fine.
 
 ```yaml
+logger:
+  baud_rate: 0
+
 uart:
   id: bus_1
+  rx_pin:
+    number: GPIO21
+    mode:
+      input: true
+      pullup: true
   tx_pin: GPIO20
-  rx_pin: GPIO21
   baud_rate: 9600
   data_bits: 8
   parity: NONE
@@ -188,6 +195,10 @@ dlms_push:
   id: my_dlms_meter
   uart_id: bus_1
 ```
+
+In newer versions of ESPHome (esp-idf > 5.x) , the `uart` pins need to be pulled up, otherwise the communication will not work. This is because the default state of the pins was changed to floating.
+
+I am using the same pins for the RS485 converter as for the logger, so I had to disable the logger by setting the `baud_rate` to 0. You can use different pins for the logger if you want to keep it enabled.
 
 ### Number sensor (`sensor`)
 My electricity consumption is measured in kWh, but the meter sends the value in Wh. Therefore, I use a lambda filter to convert the value from Wh to kWh by dividing it by 1000.
