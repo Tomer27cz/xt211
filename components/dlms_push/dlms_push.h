@@ -34,6 +34,7 @@ class DlmsPushComponent : public Component, public uart::UARTDevice {
 
   void set_receive_timeout(uint32_t timeout_ms) { this->receive_timeout_ms_ = timeout_ms; }
   void set_show_log(bool show_log) { this->show_log_ = show_log; }
+  void set_dump_raw(bool dump_raw) { this->dump_raw_ = dump_raw; }
   void set_custom_pattern(const std::string &pattern) { this->custom_pattern_ = pattern; }
 
 #ifdef USE_SENSOR

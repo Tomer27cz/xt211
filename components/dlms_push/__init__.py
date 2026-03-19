@@ -45,4 +45,5 @@ async def to_code(config):
     # Apply configuration to the C++ component
     cg.add(var.set_receive_timeout(config[CONF_RECEIVE_TIMEOUT]))
     cg.add(var.set_show_log(config[CONF_SHOW_LOG]))
+    cg.add(var.set_dump_raw(config[CONF_DUMP_RAW]))
     cg.add(var.set_custom_pattern(config[CONF_CUSTOM_PATTERN]))
