@@ -97,17 +97,21 @@ void DlmsPushComponent::process_frame_() {
   }
 
   if (this->dump_raw_) {
-    ESP_LOGD(TAG, "--- BEGIN RAW DUMP ---");
-    for (size_t i = 0; i < this->rx_buffer_len_; i += 32) {
-      std::string line;
-      for (size_t j = 0; j < 32 && (i + j) < this->rx_buffer_len_; j++) {
-        char buf[4];
-        snprintf(buf, sizeof(buf), "%02X ", this->rx_buffer_[i + j]);
+    ESP_LOGD(TAG, "--- BEGIN C++ ARRAY DUMP ---");
+    ESP_LOGD(TAG, "const uint8_t raw_frame[%zu] = {", this->rx_buffer_len_);
+
+    // Process 16 bytes per line to safely avoid logger truncation limits
+    for (size_t i = 0; i < this->rx_buffer_len_; i += 16) {
+      std::string line = "  ";
+      for (size_t j = 0; j < 16 && (i + j) < this->rx_buffer_len_; j++) {
+        char buf[8];
+        snprintf(buf, sizeof(buf), "0x%02X, ", this->rx_buffer_[i + j]);
         line += buf;
       }
-      ESP_LOGD(TAG, "%04X: %s", (unsigned int)i, line.c_str());
+      ESP_LOGD(TAG, "%s", line.c_str());
     }
-    ESP_LOGD(TAG, "--- END RAW DUMP ---");
+    ESP_LOGD(TAG, "};");
+    ESP_LOGD(TAG, "--- END C++ ARRAY DUMP ---");
   }
 
   auto callback = [this](const char *obis_code, float float_val, const char *str_val, bool is_numeric) {
