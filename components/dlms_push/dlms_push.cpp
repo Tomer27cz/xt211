@@ -96,6 +96,20 @@ void DlmsPushComponent::process_frame_() {
     ESP_LOGD(TAG, "PUSH frame size: %zu bytes", this->rx_buffer_len_);
   }
 
+  if (this->dump_raw_) {
+    ESP_LOGD(TAG, "--- BEGIN RAW DUMP ---");
+    for (size_t i = 0; i < this->rx_buffer_len_; i += 32) {
+      std::string line;
+      for (size_t j = 0; j < 32 && (i + j) < this->rx_buffer_len_; j++) {
+        char buf[4];
+        snprintf(buf, sizeof(buf), "%02X ", this->rx_buffer_[i + j]);
+        line += buf;
+      }
+      ESP_LOGD(TAG, "%04X: %s", (unsigned int)i, line.c_str());
+    }
+    ESP_LOGD(TAG, "--- END RAW DUMP ---");
+  }
+
   auto callback = [this](const char *obis_code, float float_val, const char *str_val, bool is_numeric) {
     this->on_data_parsed_(obis_code, float_val, str_val, is_numeric);
   };

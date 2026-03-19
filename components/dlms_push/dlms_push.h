@@ -54,6 +54,7 @@ class DlmsPushComponent : public Component, public uart::UARTDevice {
 
   uint32_t receive_timeout_ms_{50};
   bool show_log_{false};
+  bool cump_raw_{false};
   std::string custom_pattern_{""};
 
   static const size_t MAX_RX_BUFFER_SIZE = 2048;

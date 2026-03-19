@@ -8,6 +8,7 @@ DEPENDENCIES = ["uart"]
 
 CONF_RECEIVE_TIMEOUT = "receive_timeout"
 CONF_SHOW_LOG = "show_log"
+CONF_DUMP_RAW = "dump_raw"
 CONF_CUSTOM_PATTERN = "custom_pattern"
 
 # Define the namespace and the Hub component class
@@ -28,6 +29,7 @@ CONFIG_SCHEMA = cv.All(
             cv.GenerateID(): cv.declare_id(DlmsPushComponent),
             cv.Optional(CONF_RECEIVE_TIMEOUT, default="50ms"): cv.positive_time_period_milliseconds,
             cv.Optional(CONF_SHOW_LOG, default=False): cv.boolean,
+            cv.Optional(CONF_DUMP_RAW, default=False): cv.boolean,
             cv.Optional(CONF_CUSTOM_PATTERN, default=""): cv.string,
         }
     )
