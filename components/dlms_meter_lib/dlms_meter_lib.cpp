@@ -1,5 +1,9 @@
 #include "dlms_meter_lib.h"
 
+#include "esphome/core/log.h"
+#include "esphome/core/application.h"
+#include "esphome/core/helpers.h"
+
 #include <cstdio>
 
 namespace esphome::dlms_meter_lib
@@ -67,7 +71,7 @@ void DlmsMeterLibComponent::dump_config() {
 void DlmsMeterLibComponent::set_decryption_key(const char *hex_key) {
   auto key = dlms_parser::Aes128GcmDecryptionKey::from_hex(hex_key);
   if (key) {
-    this->parser_.set_decryption_key(*key);
+    this->parser_->set_decryption_key(*key);
   } else {
     ESP_LOGE(TAG, "Invalid decryption key");
   }
