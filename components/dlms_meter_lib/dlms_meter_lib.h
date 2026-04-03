@@ -1,6 +1,7 @@
 #include "esphome/core/component.h"
 #include "esphome/core/defines.h"
 #include "esphome/core/log.h"
+#include "esphome/components/uart/uart.h"
 
 #ifdef USE_SENSOR
 #include "esphome/components/sensor/sensor.h"
@@ -69,7 +70,7 @@ class DlmsMeterLibComponent : public Component, public uart::UARTDevice {
 
   uint32_t receive_timeout_ms_{50};
   std::string custom_pattern_{""};
-  std::unique_ptr<DlmsParser> parser_;
+  std::unique_ptr<dlms_parser::DlmsParser> parser_;
 
 #ifdef USE_SENSOR
   struct NumericSensorEntry {

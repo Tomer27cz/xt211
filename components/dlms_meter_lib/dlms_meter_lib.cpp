@@ -30,7 +30,9 @@ static void log_callback(dlms_parser::LogLevel level, const char *fmt, va_list a
 
 void DlmsMeterLibComponent::setup() {
   dlms_parser::Logger::set_log_function(log_callback);
-  this->parser_.load_default_patterns();
+  this->parser_ = std::make_unique<dlms_parser::DlmsParser>();
+  this->parser_->load_default_patterns();
+
   this->rx_buffer_ = std::make_unique<uint8_t[]>(MAX_RX_BUFFER_SIZE);
   this->rx_buffer_len_ = 0;
 }
