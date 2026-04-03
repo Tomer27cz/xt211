@@ -45,7 +45,7 @@ CONFIG_SCHEMA = cv.All(
         {
             cv.GenerateID(): cv.declare_id(DlmsMeterLibComponent),
             cv.Optional(CONF_RECEIVE_TIMEOUT, default="50ms"): cv.positive_time_period_milliseconds,
-            cv.Required(CONF_DECRYPTION_KEY): validate_key,
+            cv.Optional(CONF_DECRYPTION_KEY): validate_key,
             cv.Optional(CONF_CUSTOM_PATTERN, default=""): cv.string,
         }
     )
@@ -64,8 +64,10 @@ async def to_code(config):
     await cg.register_component(var, config)
     await uart.register_uart_device(var, config)
 
+    if CONF_DECRYPTION_KEY in config:
+        cg.add(var.set_decryption_key(config[CONF_DECRYPTION_KEY]))
+
     cg.add(var.set_receive_timeout(config[CONF_RECEIVE_TIMEOUT]))
-    cg.add(var.set_decryption_key(config[CONF_DECRYPTION_KEY]))
     cg.add(var.set_custom_pattern(config[CONF_CUSTOM_PATTERN]))
 
     cg.add_library("dlms_parser", None, "https://github.com/esphome-libs/dlms_parser")
