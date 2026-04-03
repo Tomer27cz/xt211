@@ -118,7 +118,7 @@ void DlmsMeterLibComponent::process_frame_() {
     this->on_data_(obis_code, float_val, str_val, is_numeric);
   };
 
-  this->parser_->parse(this->rx_buffer_.get(), this->rx_buffer_len_, callback);
+  this->parser_->parse(std::span<uint8_t>(this->rx_buffer_.get(), this->rx_buffer_len_), callback);
   this->rx_buffer_len_ = 0;
 }
 
