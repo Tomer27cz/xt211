@@ -8,21 +8,21 @@
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Tomer27cz/xt211/total)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Tomer27cz/xt211)
 
-### For Sagecom XT211 smart meter used by ČEZ Distribuce (Czechia)
+### For Sagemcom XT211 smart meter used by ČEZ Distribuce (Czechia)
 
 ### [[Česká verze]](README.cz.md)
 
 My electricity provider (ČEZ Distribuce) has just installed a new smart meter at my home. Up until this time I was using the [Home Assistant Glow](https://glow-energy.io/) to track my household energy consumption. So I was excited to finnaly get my hands on the new smart meter and see if I can read out the data from it. Unfortunately it was not as easy as I hoped, but after many failed attempts I managed to get it working, and I want to share my experience with you.
 
-## Sagecom XT211 - My smart meter
+## Sagemcom XT211 - My smart meter
 
 [Distribution company website (in czech)](https://www.cezdistribuce.cz/pro-zakazniky/potrebuji-vyresit/elektromery-a-odecty/pruvodce-elektromery/xt211-amm) | [Datasheet](documents/Datasheet_Sagemcom_XT211_EN.pdf)
 
-![Sagecom XT211](images/meter/meter.webp)
+![Sagemcom XT211](images/meter/meter.webp)
 
-The Sagecom XT211 is a three-phase smart meter that supports DLMS/COSEM protocol for data communication. It has a built-in RS485 interface that can be used to read out the meter data. The meter is configured for PUSH communication, which means it sends data every 60 seconds without the need for polling.
+The Sagemcom XT211 is a three-phase smart meter that supports DLMS/COSEM protocol for data communication. It has a built-in RS485 interface that can be used to read out the meter data. The meter is configured for PUSH communication, which means it sends data every 60 seconds without the need for polling.
 
-![Sagecom XT211 port](images/meter/meter_port.png)
+![Sagemcom XT211 port](images/meter/meter_port.png)
 
 In my case, the meters port was connected to the WM-RelayBox device, which is used for remote disconnection of the electricity supply. The RS485 interface is accessible via an RJ12 port that is located on the device.
 

@@ -12,15 +12,15 @@
 
 Můj poskytovatel elektřiny (ČEZ Distribuce) mi právě nainstaloval nový chytrý elektroměr. Až do teď jsem používal [Home Assistant Glow](https://glow-energy.io/) pro sledování spotřeby domácnosti. Takže jsem byl nadšený, že se konečně dostanu k novému elektroměru a zkusím z něj číst data. Bohužel to nebylo tak jednoduché, jak jsem doufal, ale po mnoha neúspěšných pokusech se mi to povedlo rozchodit a chci se s vámi podělit o zkušenosti.
 
-## Sagecom XT211 - Můj elektroměr
+## Sagemcom XT211 - Můj elektroměr
 
-[Stránky ČEZ Distribuce pro Sagecom XT211 AMM](https://www.cezdistribuce.cz/pro-zakazniky/potrebuji-vyresit/elektromery-a-odecty/pruvodce-elektromery/xt211-amm) | [Datasheet](documents/Datasheet_Sagemcom_XT211_EN.pdf)
+[Stránky ČEZ Distribuce pro Sagemcom XT211 AMM](https://www.cezdistribuce.cz/pro-zakazniky/potrebuji-vyresit/elektromery-a-odecty/pruvodce-elektromery/xt211-amm) | [Datasheet](documents/Datasheet_Sagemcom_XT211_EN.pdf)
 
-![Sagecom XT211](images/meter/meter.webp)
+![Sagemcom XT211](images/meter/meter.webp)
 
-Sagecom XT211 je třífázový chytrý elektroměr podporující protokol DLMS/COSEM pro datovou komunikaci. Má integrované RS485 rozhraní, které lze použít pro čtení dat. Elektroměr je nastavený na PUSH komunikaci, což znamená, že každých 60 sekund sám odesílá data bez nutnosti dotazování.
+Sagemcom XT211 je třífázový chytrý elektroměr podporující protokol DLMS/COSEM pro datovou komunikaci. Má integrované RS485 rozhraní, které lze použít pro čtení dat. Elektroměr je nastavený na PUSH komunikaci, což znamená, že každých 60 sekund sám odesílá data bez nutnosti dotazování.
 
-![Sagecom XT211 port](images/meter/meter_port.png)
+![Sagemcom XT211 port](images/meter/meter_port.png)
 
 V mém případě byl port elektroměru připojen do zařízení WM-RelayBox, které slouží k dálkovému odpojování dodávky elektřiny. Rozhraní RS485 je přístupné přes RJ12 port na zařízení.
 
