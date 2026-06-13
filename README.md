@@ -1,12 +1,14 @@
 # ESPHome DLMS/Cosem PUSH RS485 readout
 
-![Maintained](https://img.shields.io/maintenance/yes/2026)
 [![GitHub license](https://img.shields.io/github/license/Tomer27cz/xt211)](https://img.shields.io/github/license/Tomer27cz/xt211/blob/master/LICENSE)
 ![GitHub Repo stars](https://img.shields.io/github/stars/Tomer27cz/xt211?style=flat)
 ![GitHub issues](https://img.shields.io/github/issues/Tomer27cz/xt211?style=flat)
 ![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-pr/Tomer27cz/xt211)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Tomer27cz/xt211/total)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Tomer27cz/xt211)
+
+<a href="https://www.buymeacoffee.com/tomer27" target="_blank" rel="noopener noreferrer">
+  <img src="https://github.com/Tomer27cz/energy-line-gauge/raw/main/.github/img/button.png" alt="Buy Me A Coffee" style="cursor: pointer;" />
+</a>
 
 ### For Sagemcom XT211 smart meter used by ČEZ Distribuce (Czechia)
 
@@ -138,13 +140,24 @@ Power Led (optional):
 - Anode (longer leg) to 5V (with 4700 ohm resistor in series - lower brightness)
 - Cathode (shorter leg) to GND
 
-# Custom ESPHome component 
+# Custom ESPHome component
+
+> [!IMPORTANT]
+> ### Update (2026-06): The custom ESPHome component in this repository is now deprecated and no longer maintained
+> I have refactored ([esphome#15458](https://github.com/esphome/esphome/pull/15458)) the **native ESPHome** [dlms_meter](https://esphome.io/components/sensor/dlms_meter/) component to work with Sagemcom XT211 (and many other DLMS/COSEM meters) using the [dlms_parser](https://github.com/esphome-libs/dlms_parser) library that I have developed together with [latonita](https://github.com/latonita) and [PolarGoose](https://github.com/PolarGoose).
+>
+> This means that you can now use the official ESPHome component [dlms_meter](https://esphome.io/components/sensor/dlms_meter/) to read out your DLMS/COSEM meter, and you can also benefit from all the new features and improvements that we have made to [dlms_parser](https://github.com/esphome-libs/dlms_parser). 
+> The native component has very similar configuration options to the custom components in this repository, so it should be easy to switch to it.
+> 
+> The **hardware setup** and the ESPHome configuration examples in this repository are **still valid**, but you can replace the custom component with the native one. You can find more information about how to use the native component in the [ESPHome documentation](https://esphome.io/components/sensor/dlms_meter/).
+> 
+> *This update is available in ESPHome version 2026.6.0 and later*
+
+The two components in this repository will still be available for reference and for those who want to use it as is.
 
 There are two versions in this repository:
 - `xt211` - the original version that I used for my setup, which is based on the [esphome-dlms-cosem](https://github.com/latonita/esphome-dlms-cosem)
 - `dlms_push` - written from scratch (no longer using Gurux Libraries) using common esphome component structure, it is more flexible and easier to maintain.
-
-I will be using and maintaining the `dlms_push` version, but the `xt211` version is still available for reference and for those who want to use it as is.
 
 ## ESPHome configuration
 
@@ -159,7 +172,7 @@ esp32:
     type: esp-idf
 ```
 
-Add the external component to your ESPHome configuration:
+Add the external component to your ESPHome configuration (not needed if you use the native `dlms_meter` component):
 
 ```yaml
 external_components:
@@ -192,7 +205,7 @@ uart:
   stop_bits: 1
 
 dlms_push:
-  id: my_dlms_meter
+  id: my_dlms_meter # native ESPHome component is named dlms_meter
   uart_id: bus_1
 ```
 
@@ -205,7 +218,7 @@ My electricity consumption is measured in kWh, but the meter sends the value in 
 
 ```yaml
 sensor:
-  - platform: dlms_push
+  - platform: dlms_push # native ESPHome component is named dlms_meter
     id: active_energy_consumed
     name: "Energy"
     obis_code: 1.0.1.8.0.255
@@ -222,7 +235,7 @@ The binary sensor is `false` when the value is 0, and `true` when the value is a
 
 ```yaml
 binary_sensor:
-  - platform: dlms_push
+  - platform: dlms_push # native ESPHome component is named dlms_meter
     name: "Relay 1"
     obis_code: 0.1.96.3.10.255
 ```
@@ -232,7 +245,7 @@ The text sensor is used to display string values sent by the meter.
 
 ```yaml
 text_sensor:
-  - platform: dlms_push
+  - platform: dlms_push # native ESPHome component is named dlms_meter
     name: "Serial number"
     obis_code: 0.0.96.1.1.255
     entity_category: diagnostic
@@ -320,7 +333,7 @@ sensor:
   
   [... pulse meter from above ...]
   
-  - platform: dlms_push
+  - platform: dlms_push # native ESPHome component is named dlms_meter
     id: active_power
     name: "Active power consumption"
     obis_code: 1.0.1.7.0.255
